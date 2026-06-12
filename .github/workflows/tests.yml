@@ -11,6 +11,7 @@ jobs:
       BASE_CACHE_DIR: ${{ github.workspace }}/.base-cache
       BASE_SETUP_NOTIFY: "false"
       PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      BASE_DEMO_ENV: baseline
     steps:
       - uses: actions/checkout@v4
 
