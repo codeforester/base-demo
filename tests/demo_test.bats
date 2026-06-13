@@ -67,6 +67,14 @@ case "$*" in
   test\ base-demo\ --workspace\ *)
     printf 'Repository baseline is present.\n'
     ;;
+  build\ base-demo\ --workspace\ *\ --list)
+    printf 'info   Print project build info.\n'
+    ;;
+  build\ base-demo\ --workspace\ *)
+    printf 'project=base-demo\n'
+    printf 'version=0.1.0\n'
+    printf 'build-target=info\n'
+    ;;
   demo\ base-demo\ --workspace\ *\ --dry-run\ --\ --non-interactive)
     printf '[DRY-RUN] Would run demo for project base-demo.\n'
     ;;
@@ -97,6 +105,8 @@ EOF
   [[ "$output" == *"base-demo manifest"* ]]
   [[ "$output" == *"base-demo python cli"* ]]
   [[ "$output" == *"Repository baseline is present."* ]]
+  [[ "$output" == *"Build Targets"* ]]
+  [[ "$output" == *"project=base-demo"* ]]
   [[ "$output" == *"base-demo walkthrough complete."* ]]
   grep -Fq "basectl projects list --workspace " "$state_file"
   grep -Fqx "basectl check base-demo" "$state_file"
@@ -107,5 +117,7 @@ EOF
   grep -Eq "^basectl run base-demo --workspace .+ manifest$" "$state_file"
   grep -Eq "^basectl run base-demo --workspace .+ python-info$" "$state_file"
   grep -Eq "^basectl test base-demo --workspace .+$" "$state_file"
+  grep -Eq "^basectl build base-demo --workspace .+ --list$" "$state_file"
+  grep -Eq "^basectl build base-demo --workspace .+$" "$state_file"
   grep -Eq "^basectl demo base-demo --workspace .+ --dry-run -- --non-interactive$" "$state_file"
 }
