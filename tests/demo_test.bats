@@ -70,6 +70,12 @@ case "$*" in
     printf 'PROJECT     PATH\n'
     printf 'base-demo   %s\n' "${BASE_PROJECT_ROOT:?}"
     ;;
+  workspace\ status\ --workspace\ *\ --manifest\ *)
+    printf 'WORKSPACE base-demo-reference\n'
+    printf 'base present healthy\n'
+    printf 'base-demo present healthy\n'
+    printf 'base-bash-libs optional missing\n'
+    ;;
   setup\ base-demo\ --manifest\ *\ --dry-run\ --no-notify)
     printf '[DRY-RUN] Would reconcile base_manifest.yaml, Brewfile, mise, project virtualenv, and bats-core artifact.\n'
     ;;
@@ -79,6 +85,11 @@ case "$*" in
   doctor\ base-demo\ --manifest\ *)
     printf 'Base doctor\n'
     printf 'ok     project base-demo is healthy.\n'
+    ;;
+  config\ show)
+    printf '{\n'
+    printf '  "workspace": {"root": "%s"}\n' "${BASE_PROJECT_ROOT%/base-demo}"
+    printf '}\n'
     ;;
   run\ base-demo\ --workspace\ *\ --list)
     printf 'hello       ./src/hello.sh\n'
@@ -162,6 +173,12 @@ case "$*" in
   test\ base-demo\ --workspace\ *)
     printf 'Repository baseline is present.\n'
     ;;
+  logs\ --limit\ 3)
+    printf 'base-demo.log basectl run base-demo hello\n'
+    ;;
+  history\ --project\ base-demo\ --limit\ 5)
+    printf 'base-demo ok run hello\n'
+    ;;
   build\ base-demo\ --workspace\ *\ --list)
     printf 'info   Print project build info.\n'
     printf 'go-api Build the Go API service.\n'
@@ -183,6 +200,10 @@ case "$*" in
   demo\ base-demo\ --workspace\ *\ --dry-run\ --\ --non-interactive)
     printf '[DRY-RUN] Would run demo for project base-demo.\n'
     ;;
+  export-context\ base-demo\ --workspace\ *\ --format\ markdown\ --print)
+    printf '# AI Context Export: base-demo\n'
+    printf '## .ai-context/manifest.md\n'
+    ;;
   *)
     printf 'unexpected basectl args: %s\n' "$*" >&2
     exit 1
@@ -201,6 +222,7 @@ EOF
   [ "$status" -eq 0 ]
   [[ "$output" == *"base-demo Walkthrough"* ]]
   [[ "$output" == *"Workspace Discovery"* ]]
+  [[ "$output" == *"base-demo-reference"* ]]
   [[ "$output" == *"Setup Contract"* ]]
   [[ "$output" == *"bats-core"* ]]
   [[ "$output" == *"required_ports:"* ]]
@@ -217,6 +239,7 @@ EOF
   [[ "$output" == *"environments ./bin/base-demo-environments"* ]]
   [[ "$output" == *"uv-info     uv run -- python src/uv-info.py"* ]]
   [[ "$output" == *"Inspection Commands"* ]]
+  [[ "$output" == *"workspace"* ]]
   [[ "$output" == *"Inspecting activation and manifest environment values."* ]]
   [[ "$output" == *"Reading the manifest summary command."* ]]
   [[ "$output" == *"Checking representative service health."* ]]
@@ -256,20 +279,26 @@ EOF
   [[ "$output" == *"staging"* ]]
   [[ "$output" == *"modeled"* ]]
   [[ "$output" == *"Repository baseline is present."* ]]
+  [[ "$output" == *"Observability"* ]]
+  [[ "$output" == *"base-demo.log"* ]]
   [[ "$output" == *"Build Targets"* ]]
   [[ "$output" == *"project=base-demo"* ]]
   [[ "$output" == *"python-api build target validated"* ]]
+  [[ "$output" == *"AI Context Export"* ]]
+  [[ "$output" == *"AI Context Export: base-demo"* ]]
   [[ "$output" == *"Manifest fields exercised:"* ]]
   [[ "$output" == *"docs/representative-environment.md"* ]]
   [[ "$output" == *"banyanlabs"* ]]
   [[ "$output" == *"base-demo walkthrough complete."* ]]
   grep -Eq "^basectl repo check \\.$" "$state_file"
   grep -Fq "basectl projects list --workspace " "$state_file"
+  grep -Eq "^basectl workspace status --workspace .+ --manifest .+/workspace.yaml.example$" "$state_file"
   grep -Eq "^basectl setup base-demo --manifest .+/base_manifest.yaml --dry-run --no-notify$" "$state_file"
   grep -Eq "^basectl check base-demo --manifest .+/base_manifest.yaml$" "$state_file"
   grep -Eq "^basectl doctor base-demo --manifest .+/base_manifest.yaml$" "$state_file"
   [ "$(grep -Ec "^basectl check base-demo --manifest .+/base_manifest.yaml$" "$state_file")" -eq 2 ]
   [ "$(grep -Ec "^basectl doctor base-demo --manifest .+/base_manifest.yaml$" "$state_file")" -eq 2 ]
+  grep -Eq "^basectl config show$" "$state_file"
   grep -Eq "^basectl run base-demo --workspace .+ --list$" "$state_file"
   grep -Eq "^basectl run base-demo --workspace .+ hello$" "$state_file"
   grep -Eq "^basectl run base-demo --workspace .+ env$" "$state_file"
@@ -282,8 +311,11 @@ EOF
   grep -Eq "^basectl run base-demo --workspace .+ environments -- list$" "$state_file"
   grep -Eq "^basectl run base-demo --workspace .+ environments -- validate --all$" "$state_file"
   grep -Eq "^basectl test base-demo --workspace .+$" "$state_file"
+  grep -Eq "^basectl logs --limit 3$" "$state_file"
+  grep -Eq "^basectl history --project base-demo --limit 5$" "$state_file"
   grep -Eq "^basectl build base-demo --workspace .+ --list$" "$state_file"
   grep -Eq "^basectl build base-demo --workspace .+$" "$state_file"
   grep -Eq "^basectl build base-demo python-api --workspace .+$" "$state_file"
   grep -Eq "^basectl demo base-demo --workspace .+ --dry-run -- --non-interactive$" "$state_file"
+  grep -Eq "^basectl export-context base-demo --workspace .+ --format markdown --print$" "$state_file"
 }

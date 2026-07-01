@@ -32,13 +32,17 @@ basectl activate base-demo
 basectl check base-demo
 basectl doctor base-demo
 basectl repo check .
+basectl workspace status --manifest workspace.yaml.example
 basectl run base-demo --list
 basectl run base-demo hello
 basectl run base-demo services -- status
 basectl run base-demo environments -- list
 basectl test base-demo
+basectl logs --limit 3
+basectl history --project base-demo --limit 5
 basectl build base-demo
 basectl demo base-demo
+basectl export-context base-demo --format markdown --print
 ```
 
 The commands above exercise the complete Base project loop:
@@ -52,6 +56,9 @@ The commands above exercise the complete Base project loop:
 - `basectl check base-demo` and `basectl doctor base-demo` validate the local
   project environment from that activated shell.
 - `basectl repo check .` validates the standard repository baseline files.
+- `basectl workspace status --manifest workspace.yaml.example` shows a
+  workspace-level view of the expected `base`, `base-demo`, and
+  `base-bash-libs` peer repositories.
 - `basectl run base-demo --list` shows the manifest-declared project commands.
 - `basectl run base-demo hello` runs the `hello` command from the project root.
 - `basectl run base-demo services -- status` shows the representative service
@@ -59,8 +66,12 @@ The commands above exercise the complete Base project loop:
 - `basectl run base-demo environments -- list` shows the modeled
   `dev`/`staging`/`prod` configuration set.
 - `basectl test base-demo` runs the manifest-declared test command.
+- `basectl logs --limit 3` and `basectl history --project base-demo --limit 5`
+  show the local audit trail for recent Base activity.
 - `basectl build base-demo` runs the default build target (`info`) declared in the manifest.
 - `basectl demo base-demo` runs the project-owned walkthrough.
+- `basectl export-context base-demo --format markdown --print` prints the
+  repository AI context bundle for assistant handoff.
 
 `basectl activate base-demo` spawns a new subshell, sources `.base/activate.sh`,
 and updates the prompt to `[base-demo: <branch>] ~/path $`. Inside that shell,
