@@ -198,6 +198,8 @@ EOF
   [[ "$output" == *"Workspace Discovery"* ]]
   [[ "$output" == *"Setup Contract"* ]]
   [[ "$output" == *"bats-core"* ]]
+  [[ "$output" == *"required_ports:"* ]]
+  [[ "$output" == *"requires_python:"* ]]
   [[ "$output" == *"Project Diagnostics"* ]]
   [[ "$output" == *"post-activation green path"* ]]
   [[ "$output" == *"Declared Commands"* ]]
