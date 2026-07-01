@@ -197,6 +197,15 @@ discovery_step() {
   output="$(capture_command "$BASE_DEMO_BASECTL" projects list --workspace "$BASE_DEMO_WORKSPACE")"
   printf '%s\n' "$output"
   require_contains "projects list" "$output" "$BASE_DEMO_PROJECT"
+
+  printf '\nChecking workspace-level repository status from the example workspace manifest.\n'
+  if [[ -f "$BASE_DEMO_ROOT/workspace.yaml.example" ]]; then
+    output="$(capture_command "$BASE_DEMO_BASECTL" workspace status --workspace "$BASE_DEMO_WORKSPACE" --manifest "$BASE_DEMO_ROOT/workspace.yaml.example")"
+    printf '%s\n' "$output"
+    require_contains "workspace status" "$output" "$BASE_DEMO_PROJECT"
+  else
+    run_observed_command "$BASE_DEMO_BASECTL" workspace status --workspace "$BASE_DEMO_WORKSPACE"
+  fi
   pause
 }
 
@@ -276,10 +285,15 @@ run_step() {
 }
 
 inspection_step() {
-  local env_output manifest_output python_output uv_output services_output environments_output
+  local config_output env_output manifest_output python_output uv_output services_output environments_output
 
   step 9 "Inspection Commands"
-  printf 'Inspecting activation and manifest environment values.\n'
+  printf 'Inspecting machine-local Base configuration.\n'
+  config_output="$(capture_command "$BASE_DEMO_BASECTL" config show)"
+  printf '%s\n' "$config_output"
+  require_contains "config show" "$config_output" "workspace"
+
+  printf '\nInspecting activation and manifest environment values.\n'
   env_output="$(capture_command "$BASE_DEMO_BASECTL" run "$BASE_DEMO_PROJECT" --workspace "$BASE_DEMO_WORKSPACE" env)"
   printf '%s\n' "$env_output"
   require_contains "env command" "$env_output" "BASE_PROJECT=base-demo"
@@ -356,10 +370,26 @@ test_step() {
   pause
 }
 
+observability_step() {
+  local history_output logs_output
+
+  step 12 "Observability"
+  printf 'Showing the recent Base command log index.\n'
+  logs_output="$(capture_command "$BASE_DEMO_BASECTL" logs --limit 3)"
+  printf '%s\n' "$logs_output"
+  require_contains "logs command" "$logs_output" "base"
+
+  printf '\nShowing recent command history for this project.\n'
+  history_output="$(capture_command "$BASE_DEMO_BASECTL" history --project "$BASE_DEMO_PROJECT" --limit 5)"
+  printf '%s\n' "$history_output"
+  require_contains "history command" "$history_output" "$BASE_DEMO_PROJECT"
+  pause
+}
+
 build_step() {
   local output
 
-  step 12 "Build Targets"
+  step 13 "Build Targets"
   output="$(capture_command "$BASE_DEMO_BASECTL" build "$BASE_DEMO_PROJECT" --workspace "$BASE_DEMO_WORKSPACE" --list)"
   printf '%s\n' "$output"
   require_contains "build list" "$output" "info"
@@ -384,16 +414,27 @@ build_step() {
 demo_step() {
   local output
 
-  step 13 "Demo Contract"
+  step 14 "Demo Contract"
   output="$(capture_command "$BASE_DEMO_BASECTL" demo "$BASE_DEMO_PROJECT" --workspace "$BASE_DEMO_WORKSPACE" --dry-run -- --non-interactive)"
   printf '%s\n' "$output"
   require_contains "demo command" "$output" "Would run demo"
   pause
 }
 
+export_context_step() {
+  local output
+
+  step 15 "AI Context Export"
+  output="$(capture_command "$BASE_DEMO_BASECTL" export-context "$BASE_DEMO_PROJECT" --workspace "$BASE_DEMO_WORKSPACE" --format markdown --print)"
+  printf '%s\n' "$output"
+  require_contains "export-context" "$output" "$BASE_DEMO_PROJECT"
+  require_contains "export-context" "$output" ".ai-context"
+  pause
+}
+
 closing_summary() {
   printf '\nWalkthrough Summary\n\n'
-  printf 'Manifest fields exercised: activate, health.required_env, commands, test, build, demo, brewfile, and mise.\n'
+  printf 'Manifest fields exercised: brewfile, mise, python, health, ide, activate, commands, test, build, demo, and artifacts.\n'
   printf 'Next steps: read docs/representative-environment.md for the environment model.\n'
   printf 'For a deeper application shape, compare this reference repo with banyanlabs.\n'
   printf '\nbase-demo walkthrough complete.\n'
@@ -419,8 +460,10 @@ main() {
   inspection_step
   representative_environment_step
   test_step
+  observability_step
   build_step
   demo_step
+  export_context_step
   closing_summary
 }
 

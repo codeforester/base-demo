@@ -9,6 +9,7 @@ required_files=(
   skills.md
   LICENSE
   install.sh
+  workspace.yaml.example
   docs/representative-environment.md
   base_manifest.yaml
   Brewfile
@@ -379,6 +380,21 @@ grep -Fq 'python.defaultInterpreterPath: auto' base_manifest.yaml || {
 
 grep -Fq 'ide.vscode' README.md || {
   printf 'README.md does not document ide.vscode.\n' >&2
+  exit 1
+}
+
+grep -Fq 'workspace:' workspace.yaml.example && grep -Fq 'base-demo-reference' workspace.yaml.example || {
+  printf 'workspace.yaml.example does not declare the base-demo reference workspace.\n' >&2
+  exit 1
+}
+
+grep -Fq 'basectl workspace status --manifest workspace.yaml.example' README.md || {
+  printf 'README.md does not document workspace status.\n' >&2
+  exit 1
+}
+
+grep -Fq 'basectl export-context base-demo --format markdown --print' README.md || {
+  printf 'README.md does not document export-context.\n' >&2
   exit 1
 }
 
