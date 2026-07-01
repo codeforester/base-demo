@@ -8,6 +8,14 @@ brewfile: Brewfile
 health:
   required_env:
     - BASE_DEMO_ENV
+  required_ports:
+    - name: go-api
+      host: 127.0.0.1
+      port: 8010
+      state: free
+
+python:
+  requires_python: "3.13"
 
 mise: .mise.toml
 

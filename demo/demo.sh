@@ -169,6 +169,8 @@ manifest_step() {
   step 2 "Manifest Contracts"
   run_command grep -n "name: base-demo" "$BASE_DEMO_ROOT/base_manifest.yaml"
   run_command grep -n "required_env:" "$BASE_DEMO_ROOT/base_manifest.yaml"
+  run_command grep -n "required_ports:" "$BASE_DEMO_ROOT/base_manifest.yaml"
+  run_command grep -n "requires_python:" "$BASE_DEMO_ROOT/base_manifest.yaml"
   run_command grep -n "mise: .mise.toml" "$BASE_DEMO_ROOT/base_manifest.yaml"
   run_command grep -n "hello: ./src/hello.sh" "$BASE_DEMO_ROOT/base_manifest.yaml"
   run_command grep -n "env: ./src/env.sh" "$BASE_DEMO_ROOT/base_manifest.yaml"

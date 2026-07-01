@@ -321,6 +321,26 @@ grep -Fq 'bats-core' .ai-context/manifest.md || {
   exit 1
 }
 
+grep -Fq 'requires_python: "3.13"' base_manifest.yaml || {
+  printf 'base_manifest.yaml does not declare python.requires_python 3.13.\n' >&2
+  exit 1
+}
+
+grep -Fq 'required_ports:' base_manifest.yaml && grep -Fq 'name: go-api' base_manifest.yaml || {
+  printf 'base_manifest.yaml does not declare the go-api required port health check.\n' >&2
+  exit 1
+}
+
+grep -Fq 'python.requires_python' README.md || {
+  printf 'README.md does not document python.requires_python.\n' >&2
+  exit 1
+}
+
+grep -Fq 'health.required_ports' README.md || {
+  printf 'README.md does not document health.required_ports.\n' >&2
+  exit 1
+}
+
 grep -Fq 'build:' base_manifest.yaml || {
   printf 'base_manifest.yaml does not declare build targets.\n' >&2
   exit 1

@@ -156,7 +156,9 @@ each field maps to a visible Base workflow:
 | `project.name` | `basectl projects list` | Gives Base the stable project name used by setup, check, doctor, run, test, activate, and demo. |
 | `brewfile` | `basectl setup base-demo` | Delegates ordinary Homebrew dependencies to `brew bundle`; currently installs mise, Gradle, and Maven. |
 | `health.required_env` | `basectl check base-demo` | Declares env vars that must be set; green in an activated shell and intentionally reported missing as a pre-activation diagnostic. |
+| `health.required_ports` | `basectl check base-demo` | Declares that the baseline `go-api` port 8010 should be free before services are started. |
 | `mise` | `basectl setup base-demo` | Points to `.mise.toml` so Base installs declared tool versions (Python 3.13) via mise. |
+| `python.requires_python` | `basectl check base-demo` | Lets Base verify Python 3.13 independently of the mise installer declaration. |
 | `activate.source` | `basectl activate base-demo` | Sources project-owned shell state into the activated project shell. |
 | `commands` | `basectl run base-demo --list` | Declares named project commands such as `hello`, `env`, `manifest`, `python-info`, `services`, and `environments`. |
 | `build.targets` | `basectl build base-demo` | Declares build targets; the `info` target runs `src/build-info.sh`. |
